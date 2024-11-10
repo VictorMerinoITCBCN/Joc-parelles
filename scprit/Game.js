@@ -7,6 +7,7 @@ class Game {
         this.$userName.innerText = Cookie.get("user")
 
         this.NUM_OF_CARDS = 12
+        this.foundCards = 0
         this.score = 0
         this.$score.innerText = "Punts: " + this.score
 
@@ -22,34 +23,64 @@ class Game {
 
     createBoard() {
         this.board = this.generateRandomBoard()
-        this.foundCards = 0
+        this.board.forEach((cardValue, index) => this.createCard(cardValue, index))
+    }
 
-        console.log(this.board)
-        for (let i=0;i<this.NUM_OF_CARDS;i++) {
-            const $card = document.createElement("button")
-            const $img = document.createElement("img")
-            $img.src = `../img/cards/card-${this.board[i]}.png`
+    createCard(cardValue, index) {
+        const $card = document.createElement("button")
+        const $img = document.createElement("img")
+        $img.src = `../img/cards/card-${cardValue}.png`
+        
+        $card.className = "card"
+        $card.appendChild($img)
+        $card.addEventListener("click", () => this.handleCardClick($card, index))
+        this.$board.appendChild($card)
+    }
 
-            $card.appendChild($img)
-
-            $card.addEventListener("click", () => {
-                console.log(this.board[i])
-                
-                if (this.selectedCard && this.selectedCard.el != $card) {
-                    if (this.board[this.selectedCard.index] == this.board[i]) {
-                        this.increaseScore()
-                        this.selectedCard.el.disabled = true
-                        $card.disabled = true
-                    } else this.deceaseScore()
-
-                    this.selectedCard = null
-                } else this.selectedCard = {el: $card, index: i}
-            })
-            
-            this.$board.appendChild($card)
+    handleCardClick($card, index) {
+        if (this.selectedCard && this.selectedCard.el !== $card) {
+            this.selectCard($card)
+            this.compareCards($card, index)
+            this.selectedCard = null
+        } else {
+            this.selectCard($card)
+            this.selectedCard = { el: $card, index: index }
         }
     }
-    
+
+    compareCards($card, index) {
+        if (this.board[this.selectedCard.index] === this.board[index]) {
+            this.increaseScore()
+            this.selectedCard.el.disabled = true
+            $card.disabled = true
+            this.foundCards++
+            this.checkGameEnd()
+        } else {
+            this.decreaseScore()
+            const $secondCard = this.selectedCard.el
+            setTimeout(() => {
+                this.unselectCard($card, false)
+                this.unselectCard($secondCard, false)
+            }, 1500)
+        }
+    }
+
+    checkGameEnd() {
+        if (this.foundCards === this.NUM_OF_CARDS) {
+            alert("Has guanyat!!")
+        }
+    }
+
+    selectCard(card) {
+        card.classList.add("selected", "flip")
+        setTimeout(() => card.classList.remove("flip"), 1000)
+    }
+    unselectCard(card) {
+        card.classList.remove("selected")
+        card.classList.add("flip")
+        setTimeout(() => card.classList.remove("flip"), 1000)
+    }
+
     generateRandomBoard() {
         const board = []
 
@@ -68,12 +99,12 @@ class Game {
             alert("Has guanyat!!")
             return
         }
-        this.$score.innerText = ++this.score
+        this.$score.innerText = "Punts: " + ++this.score
         ++this.foundCards
     }
 
-    deceaseScore() {
-        this.$score.innerText = --this.score
+    decreaseScore() {
+        this.$score.innerText = "Punts: " + --this.score
     }
 }
 
