@@ -1,8 +1,12 @@
 const scoreContainer = document.getElementById("score")
-const score = Cookie.get("score")
+let score = Cookie.get("score")
+let state = Cookie.get("state")
+const updateGameInfo = () => {
+    scoreContainer.innerText = `Nom: ${Cookie.get("user")} Puntuació: ${score} Estat: ${state}`
+}
 
 if (score) {
-    scoreContainer.innerText = `Nom: ${Cookie.get("user")} Puntuació: ${score} Estat: ${Cookie.get("state")}`
+    updateGameInfo()
 }
 
 const navigatorInfoContainer = document.getElementById("navigator")
@@ -13,6 +17,7 @@ urlInfoContainer.innerText = location.origin
 
 const startGameBtn = document.getElementById("start-game")
 const eraseGameBtn = document.getElementById("erase-game")
+
 
 let openedWindow
 startGameBtn.addEventListener("click", () => {
@@ -41,3 +46,10 @@ eraseGameBtn.addEventListener("click", () => {
         Cookie.delete("state")
     }
 })
+
+const broadcastChannel = new BroadcastChannel("score")
+broadcastChannel.onmessage = (e) => {
+    score = e.data
+    state = Cookie.get("state")
+    updateGameInfo()
+}

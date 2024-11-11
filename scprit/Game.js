@@ -2,7 +2,7 @@ class Game {
     constructor() {
         this.loadHTMLElements()
         this.bestScore = Cookie.get("best-score") ? parseInt(Cookie.get("best-score")) : 0
-        this.$bestScore.innerText = this.bestScore
+        this.$bestScore.innerText = "Best Score: " + this.bestScore
 
         this.$userName.innerText = Cookie.get("user")
 
@@ -11,6 +11,7 @@ class Game {
         this.score = 0
         this.$score.innerText = "Punts: " + this.score
 
+        this.scoreBroadcast = new BroadcastChannel("score")
         this.createBoard()
     }
 
@@ -50,11 +51,10 @@ class Game {
 
     compareCards($card, index) {
         if (this.board[this.selectedCard.index] === this.board[index]) {
-            this.increaseScore()
             this.selectedCard.el.disabled = true
             $card.disabled = true
             this.foundCards++
-            this.checkGameEnd()
+            this.increaseScore()
         } else {
             this.decreaseScore()
             const $secondCard = this.selectedCard.el
@@ -65,10 +65,8 @@ class Game {
         }
     }
 
-    checkGameEnd() {
-        if (this.foundCards === this.NUM_OF_CARDS) {
-            alert("Has guanyat!!")
-        }
+    isGameFinished() {
+        return this.foundCards === this.NUM_OF_CARDS
     }
 
     selectCard(card) {
@@ -94,17 +92,30 @@ class Game {
         return board
     }
 
+    updateScore() {
+        Cookie.create("score", this.score)
+        this.scoreBroadcast.postMessage(this.score)
+        this.$score.innerText = this.score
+    }
+
     increaseScore() {
-        if (this.foundCards == this.NUM_OF_CARDS) {
-            alert("Has guanyat!!")
-            return
-        }
-        this.$score.innerText = "Punts: " + ++this.score
-        ++this.foundCards
+        this.score++
+        this.foundCards++
+        
+        this.updateScore()
+        if (this.isGameFinished()) this.win()
     }
 
     decreaseScore() {
-        this.$score.innerText = "Punts: " + --this.score
+        this.score--
+        this.updateScore()
+    }
+
+    win() {
+        alert("Has guanyat!!")
+        if (this.score > this.bestScore) Cookie.create("best-score", this.score)
+        Cookie.create("state", "terminat")
+        
     }
 }
 

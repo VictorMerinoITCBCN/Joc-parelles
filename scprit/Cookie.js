@@ -5,7 +5,7 @@ class Cookie {
 
         for (let cookie of cookies) {
             cookie = cookie.trim()
-            if (cookie.includes(keyName)) {
+            if (cookie.startsWith(keyName)) {
                 return cookie.substring(keyName.length, cookie.length)
             }
         }
