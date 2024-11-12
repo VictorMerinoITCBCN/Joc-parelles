@@ -5,9 +5,11 @@ const updateGameInfo = () => {
     scoreContainer.innerText = `Nom: ${Cookie.get("user")} Puntuació: ${score} Estat: ${state}`
 }
 
-if (score) {
-    updateGameInfo()
-}
+if (score) updateGameInfo()
+
+const bestScore = Cookie.get("best-score")
+
+if (bestScore) document.getElementById("best-score").innerText = bestScore
 
 const navigatorInfoContainer = document.getElementById("navigator")
 navigatorInfoContainer.innerText = navigator.appVersion
@@ -41,10 +43,11 @@ startGameBtn.addEventListener("click", () => {
 eraseGameBtn.addEventListener("click", () => {
     if (openedWindow) {
         openedWindow.close()
-        Cookie.delete("user")
-        Cookie.delete("score")
-        Cookie.delete("state")
     }
+    Cookie.delete("user")
+    Cookie.delete("score")
+    Cookie.delete("state")
+    scoreContainer.innerText = "No hi ha cap partida en joc"
 })
 
 const broadcastChannel = new BroadcastChannel("score")

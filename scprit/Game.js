@@ -13,6 +13,7 @@ class Game {
 
         this.scoreBroadcast = new BroadcastChannel("score")
         this.createBoard()
+        this.$info.addEventListener("click", () => window.open("rules.html", "Instruccions", "width=400, height=600"))
     }
 
     loadHTMLElements() {
@@ -20,6 +21,7 @@ class Game {
         this.$userName = document.getElementById("user-name")
         this.$score = document.getElementById("score")
         this.$board = document.getElementById("board")
+        this.$info = document.getElementById("info-btn")
     }
 
     createBoard() {
